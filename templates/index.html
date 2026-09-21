@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Irrigation · Field water planner</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="https://js.arcgis.com/3.38/esri/css/esri.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">◒</span><div>Smart Irrigation<span class="brand-subtitle">FIELD WATER PLANNER</span></div></div>
+    <span class="provider-badge"><span aria-hidden="true">●</span> Weather by Open-Meteo</span>
+  </header>
+  <div class="page-intro"><div><p class="eyebrow">FROM WEATHER TO WATER</p><h1>Plan water for your field.</h1><p>Choose a point or draw a boundary. Explore today's estimated water requirement.</p></div><span class="model-badge">Research demo</span></div>
+  <main>
+    <aside class="sidebar" aria-labelledby="calculate-heading">
+      <div class="panel-heading"><p class="eyebrow">YOUR PLAN</p><h2 id="calculate-heading">Set up your calculation</h2></div>
+      <form id="waterForm" method="post" action="{% url 'required_water' %}">
+        {% csrf_token %}
+        <fieldset class="mode-switch"><legend class="sr-only">Calculation mode</legend>
+          <label><input type="radio" name="mode" value="point" checked><span>Point location</span></label>
+          <label><input type="radio" name="mode" value="polygon"><span>Draw field</span></label>
+        </fieldset>
+        <div class="form-section"><h3><span class="step-number">1</span> Crop details</h3>
+          <div class="two-columns"><div><label for="crop">Crop</label><select name="crop" id="crop">{% for crop in crops %}<option value="{{ crop }}">{{ crop|capfirst }}</option>{% endfor %}</select></div>
+          <div><label for="stage">Growth stage</label><select name="stage" id="stage"><option value="initial">Initial</option><option value="mid">Mid-season</option><option value="late">Late-season</option></select></div></div>
+        </div>
+        <div class="form-section"><h3><span class="step-number">2</span> Choose your area</h3>
+          <div id="point-fields">
+            <label for="demoPole">Sample location</label><select id="demoPole"><option value="">Choose a sample or click the map</option></select>
+            <div class="two-columns"><div><label for="lat">Latitude</label><input type="number" name="lat" id="lat" step="any" min="-90" max="90" value="31.63" required></div>
+            <div><label for="lon">Longitude</label><input type="number" name="lon" id="lon" step="any" min="-180" max="180" value="74.35" required></div></div>
+            <p class="hint">Click anywhere on the map to move your selected point.</p>
+          </div>
+          <div id="polygon-fields" hidden>
+            <p class="hint">Trace one field boundary. The same crop and growth stage apply to the entire field.</p>
+            <div class="drawing-actions"><button type="button" id="drawField" class="secondary" disabled>Draw boundary</button><button type="button" id="clearField" class="text-button" disabled>Clear</button></div>
+            <p id="field-status" class="field-status" role="status">Waiting for the map…</p>
+          </div>
+        </div>
+        <div class="form-section"><h3><span class="step-number">3</span> Rainfall assumption</h3>
+          <label for="rainfall-effectiveness">Rainfall effectiveness (%)</label><input type="number" name="rainfall_effectiveness" id="rainfall-effectiveness" min="0" max="100" step="any" value="80" required aria-describedby="rainfall-hint">
+          <p id="rainfall-hint" class="hint">Share of rain available to the crop. The 80% starting value is an illustrative assumption, not a measured field value.</p>
+        </div>
+        <button type="submit" id="calculateButton">Calculate water requirement <span aria-hidden="true">↗</span></button>
+        <p id="form-error" class="error" role="alert"></p>
+      </form>
+      <p class="model-note">Live weather forecast · Illustrative crop model<br>Soil storage and irrigation losses are not included.</p>
+    </aside>
+    <div class="workspace">
+      <section class="map-panel" aria-labelledby="map-heading">
+        <div class="map-toolbar"><div><p class="eyebrow">MAP WORKSPACE</p><h2 id="map-heading">Find your field</h2></div><button type="button" id="btnCustomPrint" class="secondary compact">Print plan</button></div>
+        <div class="map-frame"><div id="mapDiv" aria-label="Interactive map: select a point or draw a field boundary"></div></div>
+        <div class="map-caption"><p id="map-status" role="status">Loading map. Weather calculations require internet access.</p><span class="map-key"><i></i> Selected field / point</span></div>
+        <p id="data-status" class="data-status" role="status">Loading local sample points…</p>
+      </section>
+      <section class="results-panel" aria-labelledby="results-heading" aria-busy="false">
+        <div class="results-heading"><div><p class="eyebrow">YOUR WATER ESTIMATE</p><h2 id="results-heading">Today's plan</h2></div><span id="result-badge" class="result-badge">Ready when you are</span></div>
+        <div role="status" aria-live="polite"><p id="water-needed" class="result-primary">Choose a location to get started</p><p id="result-summary" class="hint">Draw a field to see its area and total daily water volume.</p></div>
+        <div id="field-metrics" class="metric-grid" hidden>
+          <div class="metric"><span>Field area</span><strong id="metric-area">—</strong><small id="metric-square-metres"></small></div>
+          <div class="metric"><span>Average requirement</span><strong id="metric-depth">—</strong><small>Weighted by area</small></div>
+          <div class="metric"><span>Total water</span><strong id="metric-volume">—</strong><small id="metric-litres"></small></div>
+        </div>
+        <p id="calculation-details" class="hint"></p>
+        <details id="sample-details" hidden><summary>View the locations used in this estimate</summary><div class="table-scroll"><table><caption>Each sample represents part of your field.</caption><thead><tr><th scope="col">Sample</th><th scope="col">Area (ha)</th><th scope="col">Water (mm/day)</th><th scope="col">Volume (m³/day)</th></tr></thead><tbody id="sample-rows"></tbody></table></div></details>
+      </section>
+    </div>
+  </main>
+  <footer><p>Built for exploration. Weather forecasts and crop assumptions are estimates, not measured irrigation instructions.</p><p>Five sample locations are synthetic. Weather: <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p></footer>
+  <script src="{% static 'js/app.js' %}" data-spatial-url="{% url 'fetch_spatial_data' %}"></script>
+</body>
+</html>

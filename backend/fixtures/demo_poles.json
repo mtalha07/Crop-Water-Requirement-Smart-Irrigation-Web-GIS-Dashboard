@@ -1,0 +1,53 @@
+[
+  {
+    "model": "backend.pole",
+    "pk": 1,
+    "fields": {
+      "pole_survey_number": "DEMO-001",
+      "latitude": 31.63,
+      "longitude": 74.35,
+      "description": "Synthetic demo point; not a surveyed utility asset."
+    }
+  },
+  {
+    "model": "backend.pole",
+    "pk": 2,
+    "fields": {
+      "pole_survey_number": "DEMO-002",
+      "latitude": 31.632,
+      "longitude": 74.355,
+      "description": "Synthetic demo point; not a surveyed utility asset."
+    }
+  },
+  {
+    "model": "backend.pole",
+    "pk": 3,
+    "fields": {
+      "pole_survey_number": "DEMO-003",
+      "latitude": 31.627,
+      "longitude": 74.357,
+      "description": "Synthetic demo point; not a surveyed utility asset."
+    }
+  },
+  {
+    "model": "backend.pole",
+    "pk": 4,
+    "fields": {
+      "pole_survey_number": "DEMO-004",
+      "latitude": 31.625,
+      "longitude": 74.348,
+      "description": "Synthetic demo point; not a surveyed utility asset."
+    }
+  },
+  {
+    "model": "backend.pole",
+    "pk": 5,
+    "fields": {
+      "pole_survey_number": "DEMO-005",
+      "latitude": 31.635,
+      "longitude": 74.345,
+      "description": "Synthetic demo point; not a surveyed utility asset."
+    }
+  }
+]
+

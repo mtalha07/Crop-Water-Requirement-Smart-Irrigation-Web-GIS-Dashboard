@@ -1,0 +1,18 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+staticfiles/
+*.whl
+*.log
+db.sqlite3-journal
+db.sqlite3-wal
+db.sqlite3-shm
+.pytest_cache/
+.coverage
+htmlcov/
+# db.sqlite3 is intentionally included as the seeded demo database.
+
