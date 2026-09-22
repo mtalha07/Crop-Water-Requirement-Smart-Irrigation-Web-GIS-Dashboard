@@ -110,3 +110,17 @@ See [Open-Meteo usage plans](https://open-meteo.com/en/pricing) for commercial u
 
 Tests use a temporary SQLite database and mocked weather. Optional settings are
 documented in `.env.example`; `.env` files are not loaded automatically.
+
+
+## Interface 
+- Followig are the Screen shots attached below to give an idea, how interface will look like and how it will be operated.
+
+![Main Page Interface Screen shot](Main_Page.png)
+
+- Further details of each point with in the selected polygon
+
+![Selected Area point detail](<Screen shot.png>)
+
+- How to change crop type and it's growth stage.
+
+![Change crope type and growth stage](<crop type.png>)
